@@ -1,5 +1,5 @@
 {
   "name": "pokedex",
   "integrations": {},
-  "type": "angular-standalone"
+  "type": "angular"
 }
