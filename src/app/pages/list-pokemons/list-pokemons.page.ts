@@ -1,15 +1,16 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, 
-  IonGrid, IonRow, IonCol, IonCard, IonCardContent, 
-  IonImg, IonText, LoadingController 
+import {
+  IonContent, IonHeader, IonTitle, IonToolbar,
+  IonGrid, IonRow, IonCol, IonCard, IonCardContent,
+  IonImg, IonText, IonInfiniteScroll, IonInfiniteScrollContent,
+  LoadingController, InfiniteScrollCustomEvent
 } from '@ionic/angular/standalone';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { IPokemon } from '../../interfaces/pokemon';
-// 👇 1. Cambio en el import del servicio
-import { SPokemon } from '../../services/pokemon.service'; 
+import { SPokemon } from '../../services/pokemon.service';
 
 @Component({
   selector: 'app-list-pokemons',
@@ -19,14 +20,14 @@ import { SPokemon } from '../../services/pokemon.service';
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar,
     IonGrid, IonRow, IonCol, IonCard, IonCardContent,
-    IonImg, IonText, CommonModule, FormsModule
+    IonImg, IonText, IonInfiniteScroll, IonInfiniteScrollContent,
+    CommonModule, FormsModule
   ]
 })
 export class ListPokemonsPage {
 
-  // 👇 2. Cambio en la inyección de la dependencia
-  private pokemonService: SPokemon = inject(SPokemon); 
-
+  private pokemonService: SPokemon = inject(SPokemon);
+  private router: Router = inject(Router);
   pokemons: IPokemon[] = [];
 
   constructor(private loadingCtroller: LoadingController) { }
@@ -35,15 +36,22 @@ export class ListPokemonsPage {
     this.getMorePokemons();
   }
 
-  async getMorePokemons() {
+  // Corregido: Ahora apunta a 'detail-pokemon' coincidiendo con app.routes.ts
+  goToPage(pokemon: IPokemon) {
+    this.router.navigate(['detail-pokemon', pokemon.id]);
+  }
+
+  async getMorePokemons(event?: InfiniteScrollCustomEvent) {
     const promisePokemons = this.pokemonService.getPokemons();
 
     if (promisePokemons) {
-      const loading = await this.loadingCtroller.create({
-        message: 'Cargando...',
-      });
-
-      await loading.present();
+      let loading: any;
+      if (!event) {
+        loading = await this.loadingCtroller.create({
+          message: 'Cargando...',
+        });
+        loading.present();
+      }
 
       promisePokemons.then((pokemons: IPokemon[] | null) => {
         if (pokemons) {
@@ -52,7 +60,8 @@ export class ListPokemonsPage {
       })
       .catch((error) => console.log(error))
       .finally(() => {
-        loading.dismiss();
+        loading?.dismiss();
+        event?.target.complete();
       });
     }
   }

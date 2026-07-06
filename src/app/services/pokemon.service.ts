@@ -43,6 +43,14 @@ export class SPokemon {
     return null;
   }
 
+  // Nuevo método agregado correctamente dentro de la clase
+  getPokemonById(id: number): Promise<IPokemon> {
+    return CapacitorHttp.get({ url: `${this.apiUrl}/${id}`, params: {} })
+      .then((response: HttpResponse) => {
+        return this.processPokemon(response.data);
+      });
+  }
+
   private processPokemon(pokemonData: any) {
     const pokemon: IPokemon = {
       id: pokemonData.id,

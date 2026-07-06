@@ -7,7 +7,7 @@
 <ion-content [fullscreen]="true">
   <ion-grid>
     @for (pokemon of pokemons; track pokemon) {
-      <ion-card>
+      <ion-card (click)="goToPage(pokemon)">
         <ion-card-content>
           <ion-row class="ion-align-items-center">
             <ion-col size="3">
@@ -16,12 +16,12 @@
             <ion-col size="4">
               <ion-text class="ion-text-capitalize">{{ pokemon.name }}</ion-text>
             </ion-col>
-            <ion-col size="3">
-            <ion-img [src]="'assets/img/' + pokemon.type1 + '.svg'"/>
+            <ion-col size="2">
+              <ion-img [src]="'assets/img/' + pokemon.type1 + '.png'"/>
             </ion-col>
             @if (pokemon.type2) {
               <ion-col size="2">
-                <ion-img [src]="'assets/img/' + pokemon.type2 + '.svg'"/>
+                <ion-img [src]="'assets/img/' + pokemon.type2 + '.png'"/>
               </ion-col>
             }
           </ion-row>
@@ -29,4 +29,10 @@
       </ion-card>
     }
   </ion-grid>
+
+  <ion-infinite-scroll threshold="50px" (ionInfinite)="getMorePokemons($event)">
+    <ion-infinite-scroll-content
+      loadingText="Cargando..."
+      loadingSpinner="bubbles"/>
+  </ion-infinite-scroll>
 </ion-content>
